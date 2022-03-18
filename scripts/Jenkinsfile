@@ -1,0 +1,49 @@
+@Library('jenkins-devops@dev')_ // load jenkins-devops as a library
+
+pipeline {
+  agent {
+    label 'werf'
+  }
+  environment {
+      SECRET_FILE_ID = credentials("ya_registry_key")
+      A              = '1'
+  }
+  stages { //* Pass
+    stage('Password') {
+      steps {
+        script {
+          withCredentials([usernamePassword(credentialsId: 'id-key', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+
+              password = env.PASSWORD
+
+              sh "echo pass $PASSWORD" 
+          }
+          echo "PASS ${password}"
+        }
+      }
+    }
+  }
+  post { //* Post Action
+    always {
+      script {
+        if (SendNotification == 'true') {
+          functions.postActionBuildResult("${SlackChannel}")
+        }
+      }
+    }
+    success {
+      script { //* Auto Deploy
+        if (env.BRANCH_NAME == 'dev') {
+          echo "=====> Start deploy to dev-namespace"
+          build job: 'Team.XXX(K8S)/XXX.XXX/dev', wait: true
+          echo "frontend url: https://XXX.ru/ "
+          echo "cms url: https://XXX.ru/ "
+        } 
+        else if (env.BRANCH_NAME == 'prod') {
+          echo "=====> Start deploy to production"
+          build job: 'Team.APEX(K8S)/apex.entrypoint/master', wait: true
+        }
+      }
+    }
+  } //* EOF Post Action
+}
