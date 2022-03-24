@@ -1,0 +1,35 @@
+\\\\\\\\\\ Unblock VM в ProxMox \\\\\\\\\\
+
+вначале разблокируем машину
+
+qm unlock 111909
+
+удаляем битый снапшот
+
+/usr/sbin/qm delsnapshot 111909 swap --force true
+
+отключаем ha-manager set vm:111909 --state disabled 
+затем стартуем
+
+менеджер ha-manager set vm:111909 --state started
+
+после стартуем машину qm start 111909
+
+\\\\\\\\\\ Copy "files" in pod on k8s \\\\\\\\\\
+
+kubectl cp entrypoint-back ep/mongodb-ep-rus-0:/tmp
+
+копирование в под на k8s
+
+\\\\\\\\\\\ copy files from one machine to another using ssh \\\\\\\\\\\
+
+scp -i "xxx.pem" devops.terraform-master.zip ubuntu@xx.xxx.x.xxx:~/terraform
+
+
+\\\\\\\\\\ How push in Nexus \\\\\\\\\\ 
+
+host nexus.xxx.ru \\ проверяем
+cat /etc/resolv.conf \\ смотрим dns
+docker login nexus.xxx.ru \\ заходим под учеткой для nexus
+docker tag nexus.xxx.ru/entrypoint.backend:prod nexus.xxx.ru/entrypoint.backend:prod-global-old \\ меняем тэг
+docker push nexus.xxx.ru/entrypoint.backend:prod-global-old \\ push in nexus
