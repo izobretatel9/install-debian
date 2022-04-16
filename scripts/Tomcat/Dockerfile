@@ -1,0 +1,23 @@
+FROM nexus.ap-team.ru/ubuntu-base:20.04 as build
+MAINTAINER Vadim Maltsev <windows-1995@mail.ru>
+RUN apt update -y \
+    && apt install wget zip sudo systemctl nano -y
+RUN apt install openjdk-8-jre-headless -y
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+RUN groupadd tomcat \
+    && useradd -d /usr/share/tomcat -g tomcat -M -s /bin/false tomcat
+RUN wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.tar.gz -O /tmp/tomcat.tar.gz \
+    && mkdir -p /usr/share/tomcat \
+    && sudo tar xvf /tmp/tomcat.tar.gz -C /usr/share/tomcat --strip-components 1 \
+    && sudo chgrp -R tomcat /usr/share/tomcat \
+    && sudo chmod -R g+r /usr/share/tomcat/conf \
+    && sudo chmod g+x /usr/share/tomcat/conf \
+    && cd /usr/share/tomcat/ \
+    && sudo chown -R tomcat webapps work temp logs
+
+RUN echo "[Unit]\nDescription=Apache Tomcat Server\nAfter=network.target\n\n[Service]\nType=forking\n\nEnvironment=JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre\nEnvironment=CATALINA_PID=/usr/share/tomcat/temp/tomcat.pid\nEnvironment=CATALINA_HOME=/usr/share/tomcat\nEnvironment=CATALINA_BASE=/usr/share/tomcat\nEnvironment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'\nEnvironment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'\n\nExecStart=/usr/share/tomcat/bin/startup.sh\nExecStop=/usr/share/tomcat/bin/shutdown.sh\n\nUser=tomcat\nGroup=tomcat\nUMask=0007\nRestartSec=15\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\n" | tee /etc/systemd/system/tomcat.service
+
+RUN sudo systemctl daemon-reload \
+    && sudo systemctl enable tomcat.service \
+    && sudo systemctl start tomcat.service
+CMD ["/usr/share/tomcat/bin/catalina.sh", "run"]
