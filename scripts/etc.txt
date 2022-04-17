@@ -19,8 +19,6 @@ qm unlock 111909
 
 kubectl cp entrypoint-back ep/mongodb-ep-rus-0:/tmp
 
-копирование в под на k8s
-
 \\\\\\\\\\\ copy files from one machine to another using ssh \\\\\\\\\\\
 
 scp -i "xxx.pem" devops.terraform-master.zip ubuntu@xx.xxx.x.xxx:~/terraform
@@ -33,3 +31,7 @@ cat /etc/resolv.conf \\ смотрим dns
 docker login nexus.xxx.ru \\ заходим под учеткой для nexus
 docker tag nexus.xxx.ru/entrypoint.backend:prod nexus.xxx.ru/entrypoint.backend:prod-global-old \\ меняем тэг
 docker push nexus.xxx.ru/entrypoint.backend:prod-global-old \\ push in nexus
+
+\\\\\\\\\\ Docker run "path" \\\\\\\\\\ 
+
+sudo docker run -v /<path to data>:/usr/local/apache2/htdocs -p 80:80 nexus.xxx.ru/httpd:alpine

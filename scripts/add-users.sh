@@ -23,6 +23,11 @@ sed -i 's/%sudo\s*ALL=(ALL:ALL)\s*ALL\s*/%sudo   ALL=(ALL:ALL) NOPASSWD: ALL/g' 
 nano /etc/hostname
 nano /etc/hosts
 
+adduser usr
+usermod -aG sudo usr
+sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+sudo service ssh restart
+
 #fdisk -l
 #mkfs.ext4 /dev/vda
 #e2label /dev/vda nvme # Lable
