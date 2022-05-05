@@ -23,8 +23,9 @@ sed -i 's/%sudo\s*ALL=(ALL:ALL)\s*ALL\s*/%sudo   ALL=(ALL:ALL) NOPASSWD: ALL/g' 
 nano /etc/hostname
 nano /etc/hosts
 
-adduser usr
-usermod -aG sudo usr
+sudo useradd -d /home/usr -m -s /bin/bash \
+-c FullName,Phone,OtherInfo usr -p $(echo "belkapass" | openssl passwd -1 -stdin)
+sudo usermod -aG sudo usr
 sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
 sudo service ssh restart
 
