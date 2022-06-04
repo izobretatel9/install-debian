@@ -18,6 +18,11 @@ qm unlock 111909
 \\\\\\\\\\ Copy "files" in pod on k8s \\\\\\\\\\
 
 kubectl cp entrypoint-back ep/mongodb-ep-rus-0:/tmp
+mongorestore --db entrypoint-back-rus /tmp/
+
+\\\\\\\\\\ копирование с пода на хост \\\\\\\\\\
+
+kubectl cp ep-production/mongodb-ep-rus-0:/tmp/dump/ /
 
 \\\\\\\\\\\ copy files from one machine to another using ssh \\\\\\\\\\\
 
