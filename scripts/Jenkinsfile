@@ -47,3 +47,59 @@ pipeline {
     }
   } //* EOF Post Action
 }
+----------------
+  
+          stage('helm-publish in for') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'npm-uploader', passwordVariable: 'PASS', usernameVariable: 'UN')]) {
+                    script {
+                        String[] tags;
+                        tags = helmTags.split(' ');
+                        for (String value : tags){
+                            helm_chart_path = ".helm/Chart.yaml"
+                            text = readFile(helm_chart_path).trim().replaceAll("VERSION_REPLACE", value)
+                            writeFile(file: helm_chart_path, text: text)
+                            sh """
+                                echo publishing...
+                                helm package .helm
+                                lst=\$(ls *.tgz 2> /dev/null)
+                                cnt=\$(echo \$lst | wc -w)
+                                [ \$cnt -eq 0 ] && echo 'No helm-packages for publish' && exit 0
+                                echo 'Publishing packages:'
+                                find -type f -name *.tgz -print0 | xargs -r0i -n1 curl -u ${UN}:${PASS} https://nexus.ap-team.ru/repository/helm-hosted/ --upload-file {} && echo 'All helm-packages published to' https://nexus.ap-team.ru/repository/helm-hosted/ && exit 0 || exit 252
+                                find -type f -name *.tgz -exec rm -rf {} \\;
+                                exit 251
+                            """
+                            text = readFile(helm_chart_path).trim().replaceAll(value, "VERSION_REPLACE")
+                            writeFile(file: helm_chart_path, text: text)
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('helm-publish') {
+            steps {
+                script {
+                  helm_chart_path = ".helm/Chart.yaml"
+                  text = readFile(helm_chart_path).trim().replaceAll("VERSION_REPLACE", "${helmTag}")
+                  writeFile(file: helm_chart_path, text: text)
+                }
+                withCredentials([usernamePassword(credentialsId: 'npm-uploader', passwordVariable: 'PASS', usernameVariable: 'UN')]) {
+                    script {
+                        sh """
+                            echo publishing...
+                            helm package .helm
+                            lst=\$(ls *.tgz 2> /dev/null)
+                            cnt=\$(echo \$lst | wc -w)
+                            [ \$cnt -eq 0 ] && echo 'No helm-packages for publish' && exit 0
+                            echo 'Publishing packages:'
+                            find -type f -name *.tgz -print0 | xargs -r0i -n1 curl -u ${UN}:${PASS} https://nexus.ap-team.ru/repository/helm-hosted/ --upload-file {} && echo 'All helm-packages published to' https://nexus.ap-team.ru/repository/helm-hosted/ && exit 0 || exit 252
+                            exit 251
+                        """
+                    }
+                }
+            }
+        }
+
+--------------------------------
