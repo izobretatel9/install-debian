@@ -66,7 +66,7 @@ pipeline {
                                 cnt=\$(echo \$lst | wc -w)
                                 [ \$cnt -eq 0 ] && echo 'No helm-packages for publish' && exit 0
                                 echo 'Publishing packages:'
-                                find -type f -name *.tgz -print0 | xargs -r0i -n1 curl -u ${UN}:${PASS} https://nexus.ap-team.ru/repository/helm-hosted/ --upload-file {} && echo 'All helm-packages published to' https://nexus.ap-team.ru/repository/helm-hosted/ && exit 0 || exit 252
+                                find -type f -name *.tgz -print0 | xargs -r0i -n1 curl -u ${UN}:${PASS} https://nexus.xxx.ru/repository/helm-hosted/ --upload-file {} && echo 'All helm-packages published to' https://nexus.xxx.ru/repository/helm-hosted/ && exit 0 || exit 252
                                 find -type f -name *.tgz -exec rm -rf {} \\;
                                 exit 251
                             """
@@ -94,7 +94,7 @@ pipeline {
                             cnt=\$(echo \$lst | wc -w)
                             [ \$cnt -eq 0 ] && echo 'No helm-packages for publish' && exit 0
                             echo 'Publishing packages:'
-                            find -type f -name *.tgz -print0 | xargs -r0i -n1 curl -u ${UN}:${PASS} https://nexus.ap-team.ru/repository/helm-hosted/ --upload-file {} && echo 'All helm-packages published to' https://nexus.ap-team.ru/repository/helm-hosted/ && exit 0 || exit 252
+                            find -type f -name *.tgz -print0 | xargs -r0i -n1 curl -u ${UN}:${PASS} https://nexus.xxx.ru/repository/helm-hosted/ --upload-file {} && echo 'All helm-packages published to' https://nexus.xxx.ru/repository/helm-hosted/ && exit 0 || exit 252
                             exit 251
                         """
                     }
